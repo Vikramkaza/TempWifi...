@@ -36,6 +36,7 @@ void setup() {
     String d = EEPROM.readString(400); 
     const char * ssid = s.c_str();
     const char * password = p.c_str();
+  
     Serial.println(s+p);
     WiFi.begin(ssid, password);
    
@@ -61,12 +62,7 @@ void wipeEEPROM(){
 }
 
 void loop() {
-  
-  if(digitalRead(15) == HIGH){
-    Serial.println("Wiping WiFi credentials from memory...");
-    wipeEEPROM();
-    while(loadWIFICredsForm());
-  }
+ 
   digitalWrite(2,HIGH);
   delay(1000);
   digitalWrite(2,LOW);
@@ -75,7 +71,12 @@ void loop() {
 }
 void Systemtemp(){
   if(WiFi.status() == WL_CONNECTED){
-    
+     
+  if(digitalRead(15) == HIGH){
+    Serial.println("Wiping WiFi credentials from memory...");
+    wipeEEPROM();
+    while(loadWIFICredsForm());
+  }
   
   if (millis() - previousMillis > interval) 
     {
@@ -89,21 +90,34 @@ void Systemtemp(){
     float x = sensors.getTempCByIndex(0);
     String str2;
     str2 = String(x);
+   
   
     
     if ((WiFi.status() == WL_CONNECTED)) { //Check the current connection status
       
       //HTTPClient http;
-      String str1= "https://script.google.com/macros/s/AKfycbyoQ4GrGCchp29uAoF0ctIh9h08vyzMvmqFPPltRCqG33cprYQL6dTC7eaj1Z45rfeu/exec?temp=";
-      
+      String d = EEPROM.readString(400); 
+      String str1= "https://script.google.com/macros/s/AKfycbxDDwlLMk5pNpAJ98ALu_JxbJqt6cJusyQkcVHUjep78tPgtReJExFkP5fPOhOSB_3K/exec?Temperature=";
       String str3=str1+str2;
+      String str4= "&DeviceId=";
+      String str5=str4+d;
+      String str6=str3+str5;
+     
+      Serial.println(str6);
+      
       RequestOptions options;
       options.method = "GET";
-      const char * str4 = str3.c_str();
-      Response response = fetch(str4, options);
+      const char * str7 = str6.c_str();
+      
+     
+      Response response = fetch(str7, options);
+      Serial.println(str7);
+     
       Serial.println(response);
+      
+      
       previousMillis = millis();
-      delay(500);
+      delay(1000);
    
       Systemtemp();
       

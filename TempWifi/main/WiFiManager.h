@@ -1,6 +1,22 @@
+void handleNotFound() {
+  String message = "File Not Found\n\n";
+  message += "URI: ";
+  message += server.uri();
+  message += "\nMethod: ";
+  message += (server.method() == HTTP_GET) ? "GET" : "POST";
+  message += "\nArguments: ";
+  message += server.args();
+  message += "\n";
+  for (uint8_t i = 0; i < server.args(); i++) {
+    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
+  }
+  server.send(404, "text/plain", message);
+}
 
-
-
+/*
+ * Function for writing WiFi creds to EEPROM
+ * Returns: true if save successful, false if unsuccessful
+ */
 bool writeToMemory(String ssid, String pass, String device){
   char buff1[30];
   char buff2[30];
@@ -52,7 +68,9 @@ void handleSubmit(){
   }
 }
 
-
+/*
+ * Function for home page
+ */
 void handleRoot() {
   if (server.hasArg("ssid")&& server.hasArg("password")&& server.hasArg("deviceid")) {
     handleSubmit();
@@ -85,17 +103,24 @@ bool loadWIFICredsForm(){
   
   server.on("/", handleRoot);
 
-  
+  server.onNotFound(handleNotFound);
 
   server.begin();
   
   Serial.println("HTTP server started");
  
-
+  while(s.length() <= 0 && p.length() <= 0 && d.length() <= 0){
+    server.handleClient();
+    delay(100);
+  }
+  
   return false;
 }
 
-
+/*
+ * Function checking WiFi creds in memory 
+ * Returns: true if not empty, false if empty
+ */
 bool CheckWIFICreds(){
   Serial.println("Checking WIFI credentials");
   String s = EEPROM.readString(100);

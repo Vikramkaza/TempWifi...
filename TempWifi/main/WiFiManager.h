@@ -17,20 +17,28 @@ void handleNotFound() {
  * Function for writing WiFi creds to EEPROM
  * Returns: true if save successful, false if unsuccessful
  */
-bool writeToMemory(String ssid, String pass, String device){
+bool writeToMemory(String ssid, String pass, String device, String minimum, String maximum){
   char buff1[30];
   char buff2[30];
   char buff3[30];
+  char buff4[30];
+  char buff5[30];
   ssid.toCharArray(buff1,30);
   pass.toCharArray(buff2,30);
   device.toCharArray(buff3,30);
+  minimum.toCharArray(buff4,30);
+  maximum.toCharArray(buff5,30);
   EEPROM.writeString(100,buff1);
   EEPROM.writeString(200,buff2);
   EEPROM.writeString(400,buff3);
+  EEPROM.writeString(500,buff4);
+  EEPROM.writeString(600,buff5);
   delay(100);
   String s = EEPROM.readString(100);
   String p = EEPROM.readString(200);
   String d = EEPROM.readString(400);
+  String mi= EEPROM.readString(500);
+  String ma= EEPROM.readString(600);
   
   //#if DEBUG
   Serial.print("Stored SSID, password,deviceid are: ");
@@ -39,8 +47,12 @@ bool writeToMemory(String ssid, String pass, String device){
   Serial.print(p);
   Serial.print(" / ");
   Serial.print(d);
+  Serial.print(" / ");
+  Serial.print(mi);
+  Serial.print(" / ");
+  Serial.print(ma);
   //#endif
-  if(ssid == s && pass == p && device ==d){
+  if(ssid == s && pass == p && device ==d && minimum==mi && maximum==ma){
     return true;  
   }else{
     return false;
@@ -58,7 +70,7 @@ void handleSubmit(){
   String response_error="<h1>Error</h1>";
   response_error +="<h2><a href='/'>Go back</a>to try again";
   
-  if(writeToMemory(String(server.arg("ssid")),String(server.arg("password")),String(server.arg("deviceid")))){
+  if(writeToMemory(String(server.arg("ssid")),String(server.arg("password")),String(server.arg("deviceid")),String(server.arg("mintemp")),String(server.arg("maxtemp")))){
      server.send(400, "text/html", response_success);
      EEPROM.commit();
      delay(4000);
@@ -72,7 +84,7 @@ void handleSubmit(){
  * Function for home page
  */
 void handleRoot() {
-  if (server.hasArg("ssid")&& server.hasArg("password")&& server.hasArg("deviceid")) {
+  if (server.hasArg("ssid")&& server.hasArg("password")&& server.hasArg("deviceid")&& server.hasArg("mintemp")&& server.hasArg("maxtemp")) {
     handleSubmit();
   }
   else {
@@ -88,8 +100,10 @@ bool loadWIFICredsForm(){
   String s = EEPROM.readString(100);
   String p = EEPROM.readString(200);
   String d = EEPROM.readString(400);
+  String mi = EEPROM.readString(500);
+  String ma = EEPROM.readString(600);
   
-  const char* ssid     = "Enoda wifi kuduka maten";
+  const char* ssid     = "WIFI-MANAGER-BM";
   const char* password = "solamaten";
 
   Serial.println("Setting Access Point...");
@@ -125,7 +139,9 @@ bool CheckWIFICreds(){
   Serial.println("Checking WIFI credentials");
   String s = EEPROM.readString(100);
   String p = EEPROM.readString(200);
-  String d = EEPROM.readString(400); 
+  String d = EEPROM.readString(400);
+  String mi = EEPROM.readString(500); 
+  String ma = EEPROM.readString(600);
   //#if DEBUG
   Serial.print("Found credentials: ");
   Serial.print(s);
@@ -133,9 +149,13 @@ bool CheckWIFICreds(){
   Serial.print(p);
   Serial.print("/");
   Serial.print(d);
+  Serial.print("/");
+  Serial.print(mi);
+  Serial.print("/");
+  Serial.print(ma);
   delay(5000);
   //#endif
-  if(s.length() > 0 && p.length() > 0 && d.length() > 0 ){
+  if(s.length() > 0 && p.length() > 0 && d.length() > 0 && mi.length() > 0 && ma.length() > 0  ){
     return true;
   }else{
     return false;

@@ -153,7 +153,7 @@ void loop() {
   digitalWrite(2,LOW);
   delay(1000);
   Systemtemp();
-  delay(1000);
+
     
 }
 void Systemtemp(){
@@ -229,9 +229,12 @@ void Systemtemp(){
       
     tft.fillRect(10,137,220,180,ILI9341_BLACK);
     digitalWrite(14,HIGH);
-    delay(1000);
+    delay(500);
     digitalWrite(14,LOW);
-
+    delay(500);
+    digitalWrite(14,HIGH);
+    delay(500);
+    digitalWrite(14,LOW);
      
   if(SPIFFSInited){
 
@@ -255,7 +258,7 @@ void Systemtemp(){
      printText2(humidChar, ILI9341_GREEN,90,300,2);
      printText4("%", ILI9341_WHITE,155,300,1);
 
-  
+
       }
     else{
        
@@ -304,10 +307,7 @@ void Systemtemp(){
     printText(humaxChar, ILI9341_WHITE,170,290,1);
     //printText("o", ILI9341_WHITE,194,280,1);
     printText4("%", ILI9341_WHITE,205,290,1);
-     }
     
-    if ((WiFi.status() == WL_CONNECTED)) { //Check the current connection status
-      
       //HTTPClient http;
       String d = EEPROM.readString(400); 
       String str1= "https://script.google.com/macros/s/AKfycbyiLZjvqk7S3EhYKEyMDsbFItAYRmKbfQqUYtXSYQSniNHglvhjwxTiuL5cqmtcsRJv/exec?Temperature=";
@@ -328,7 +328,7 @@ void Systemtemp(){
       const char * str7 = str6.c_str();
       
      
-      if(i%(250) == 0){
+      if(i%(25) == 0){
       Response response = fetch(str7, options);
       Serial.println(str7);
       i=1;
@@ -340,7 +340,10 @@ void Systemtemp(){
       
    
       Serial.println(i);
-}
+    delay(30000);
+     }
+    
+
 }
 else if(!CheckWIFICreds()){
     Serial.println("No WIFI credentials stored in memory. Loading form...");

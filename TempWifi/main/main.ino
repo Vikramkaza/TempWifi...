@@ -31,11 +31,11 @@ DallasTemperature sensors(&oneWire);// Pass address of our oneWire instance to D
 #include <Fonts\consola10pt7b.h>
 
 WebServer server(80);
-#define TFT_DC 2
+#define TFT_DC 0
 #define TFT_CS 16
 #define TFT_RST 4
-#define TFT_MISO 23         
-#define TFT_MOSI 19           
+#define TFT_MISO 23        
+#define TFT_MOSI 19          
 #define TFT_CLK 18
 
 #define NTP_SERVER     "pool.ntp.org"
@@ -53,17 +53,17 @@ WebServer server(80);
 
   unsigned long int timer;
   //long previousMillis = 0;
-  int interval = 100; 
+  int interval = 100;
 
 
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
 
 void setup() {
-  
+ 
   pinMode(14,OUTPUT);
   pinMode(2, OUTPUT);
-  pinMode(1,INPUT); //for resetting WiFi creds
+  pinMode(34,INPUT); //for resetting WiFi creds
   EEPROM.begin(1000);
   Serial.begin(115200);
   sensors.begin();
@@ -75,11 +75,11 @@ void setup() {
       while (1) yield(); // Stay here twiddling thumbs waiting
     }
     SPIFFSInited = true;
- initTime("IST-5:30");   
- tft.begin();                   
-  tft.setRotation(0);            
+ initTime("IST-5:30");  
+ tft.begin();                  
+  tft.setRotation(2);            
   tft.fillScreen(ILI9341_BLACK);
-  tft.drawRect(0,0,240,320,ILI9341_WHITE);
+ // tft.drawRect(0,0,240,320,ILI9341_WHITE);
 
   delay(1000);
   if(!CheckWIFICreds())
@@ -87,43 +87,44 @@ void setup() {
     Serial.println("No WIFI credentials stored in memory. Loading form...");
     digitalWrite(2,HIGH);
     while(loadWIFICredsForm());
-    
+   
   }else
   {
     String s = EEPROM.readString(100);
     String p = EEPROM.readString(200);
-    String d = EEPROM.readString(400); 
+    String d = EEPROM.readString(400);
     String mi = EEPROM.readString(500);
     String ma = EEPROM.readString(600);
     const char * ssid = s.c_str();
     const char * password = p.c_str();
-  
+ 
     Serial.println(s+p);
     WiFi.begin(ssid, password);
    
-    while (WiFi.status() != WL_CONNECTED) 
+    while (WiFi.status() != WL_CONNECTED)
     {
-        
+       
       delay(1000);
       spinner();
-      
-      
+     
+     
       //printText("connection error", ILI9341_WHITE,15,130,2);
       Serial.println("Connecting to WiFi..");
-       if(digitalRead(27) == HIGH)
+       if(digitalRead(34) == HIGH)
        {
     Serial.println("Wiping WiFi credentials from memory...");
     wipeEEPROM();
+     printText("credentials lost", ILI9341_WHITE,15,130,2);
     while(loadWIFICredsForm());
     }    
   }
    Serial.println("Connected to the WiFi network");
    
   }
-      
-  
+     
+ 
   delay(1000);
-  
+ 
 }
 void wipeEEPROM(){
   for(int i=0;i<1000;i++){
@@ -138,14 +139,14 @@ void loop() {
 
     String  fileIndex="/logo.jpg";
     drawFSJpeg(fileIndex.c_str(), 40, 20);
-    
+   
 
   }
-  
-  
-  sensors.requestTemperatures(); 
-  
-  
+ 
+ 
+  sensors.requestTemperatures();
+ 
+ 
 
  
   digitalWrite(2,HIGH);
@@ -154,7 +155,7 @@ void loop() {
   delay(1000);
   Systemtemp();
 
-    
+   
 }
 void Systemtemp(){
   if(WiFi.status() != WL_CONNECTED){
@@ -168,20 +169,21 @@ void Systemtemp(){
   if(WiFi.status() == WL_CONNECTED){
        
      tft.fillRect(15,112,220,20,ILI9341_BLACK);  
-    initTime("IST-5:30");     
-  if(digitalRead(27) == HIGH){
+    initTime("IST-5:30");    
+  if(digitalRead(34) == HIGH){
     Serial.println("Wiping WiFi credentials from memory...");
     wipeEEPROM();
+     printText("credentials lost", ILI9341_WHITE,15,130,2);
     while(loadWIFICredsForm());
   }
-    sensors.requestTemperatures(); 
+    sensors.requestTemperatures();
 
-    
-    
-        
+   
+   
+       
     Serial.println("Requesting temperatures: ");
     Serial.println("Celcius Temperature="+String(sensors.getTempCByIndex(0))+"degC - Fahrenheit Temperature="+String(sensors.getTempFByIndex(0))+"F");
-    
+   
 
     float x = sensors.getTempCByIndex(0);
     Serial.println(x);
@@ -192,7 +194,7 @@ void Systemtemp(){
     str2 = String(x);
     humid = String(humidity);
     String mi = EEPROM.readString(500);
-    String ma = EEPROM.readString(600); 
+    String ma = EEPROM.readString(600);
     String humin= EEPROM.readString(700);
     String humax= EEPROM.readString(800);
 
@@ -209,7 +211,7 @@ void Systemtemp(){
     humin.toCharArray(huminChar,10);
     humax.toCharArray(humaxChar,10);
 
-    
+   
     /*printText("BetaMONKS", ILI9341_BLUE,55,55,3);
     tft.fillRect(50,175,150,40,ILI9341_BLACK);  
     printText(str2Char, ILI9341_WHITE,50,180,3);
@@ -224,9 +226,9 @@ void Systemtemp(){
     Serial.println(mii);
     Serial.println(maa);
     if(x > maa || x < mii || humidity > humaxx || humidity < huminn  ){
-      
+     
     Serial.println(" temperature not in limits");
-      
+     
     tft.fillRect(10,137,220,180,ILI9341_BLACK);
     digitalWrite(14,HIGH);
     delay(500);
@@ -240,7 +242,7 @@ void Systemtemp(){
 
    String  fileIndex="/logo.jpg";
     drawFSJpeg(fileIndex.c_str(), 40, 20);
-    
+   
 
   }
    
@@ -249,7 +251,7 @@ void Systemtemp(){
     // printText("wrong temp", ILI9341_WHITE,15,130,2);
     String  fileIndex1="/caution.jpg";
     drawFSJpeg(fileIndex1.c_str(), 20, 135);
-    
+   
     // tft.fillRect(50,140,160,90,ILI9341_BLACK);  
      printText2(str2Char, ILI9341_GREEN,80,270,2);
      printText("o", ILI9341_WHITE,160,260,1);
@@ -264,8 +266,8 @@ void Systemtemp(){
        
        printLocalTime();
         tft.fillRect(10,137,220,180,ILI9341_BLACK);
-        tft.drawRect(0,0,240,320,ILI9341_WHITE);
-        
+     //   tft.drawRect(0,0,240,320,ILI9341_WHITE);
+       
   //printText("TEMPERATURE", ILI9341_GREEN,20,130,2);
       printText("MAX", ILI9341_RED,173,240,1);
       printText("MIN", ILI9341_BLUE,37,240,1);
@@ -283,7 +285,7 @@ void Systemtemp(){
      str2 = String(temperatureC);
      str2.toCharArray(str2Char,10);
      humid.toCharArray(humidChar,10);
-    
+   
      tft.fillRect(50,140,160,90,ILI9341_BLACK);  
      printText2(str2Char, ILI9341_GREEN,60,170,3);
      printText("o", ILI9341_WHITE,160,155,1);
@@ -307,26 +309,26 @@ void Systemtemp(){
     printText(humaxChar, ILI9341_WHITE,170,290,1);
     //printText("o", ILI9341_WHITE,194,280,1);
     printText4("%", ILI9341_WHITE,205,290,1);
-    
+   
       //HTTPClient http;
-      String d = EEPROM.readString(400); 
+      String d = EEPROM.readString(400);
       String str1= "https://script.google.com/macros/s/AKfycbyiLZjvqk7S3EhYKEyMDsbFItAYRmKbfQqUYtXSYQSniNHglvhjwxTiuL5cqmtcsRJv/exec?Temperature=";
       String str3=str1+str2;
       String str8="&Humidity=";
       String str9=str3+str8;
       String str10=str9+humid;
-      
-      
+     
+     
       String str4= "&DeviceId=";
       String str5=str10+str4;
       String str6=str5+d;
      
       Serial.println(str6);
-      
+     
       RequestOptions options;
       options.method = "GET";
       const char * str7 = str6.c_str();
-      
+     
      
       if(i%(25) == 0){
       Response response = fetch(str7, options);
@@ -334,22 +336,22 @@ void Systemtemp(){
       i=1;
       Serial.println(response);}
       else{
-      
-      
+     
+     
       i++;}
-      
+     
    
       Serial.println(i);
     delay(30000);
      }
-    
+   
 
 }
 else if(!CheckWIFICreds()){
     Serial.println("No WIFI credentials stored in memory. Loading form...");
     digitalWrite(2,HIGH);
     while(loadWIFICredsForm());
-  
+ 
 }
 }
 /*void printText(char *text, uint16_t color, int x, int y,int textSize)
@@ -393,18 +395,18 @@ void printLocalTime() {
     //LCD.println("Connection Err");
     return;
   }
-  
+ 
   char timeHour[3];
   strftime(timeHour,3, "%H", &timeinfo);
   char minute[3];
   strftime(minute,3, "%M", &timeinfo);
   char Date[20];
  
-  
+ 
 
   strftime(Date,20, "%d/%B/%Y", &timeinfo);
   tft.fillRect(50,60,150,50,ILI9341_BLACK);  
-  
+ 
   printText1(timeHour, ILI9341_WHITE,90,85,2);
   printText1(":", ILI9341_WHITE,119,80,1);
   printText1(minute, ILI9341_WHITE,125,85,2);
@@ -417,7 +419,7 @@ void printText(char *text, uint16_t color, int x, int y,int textSize)
 {
   tft.setCursor(x, y);
   tft.setFont (&comicbd7pt7b);
-  
+ 
   tft.setTextColor(color);
   tft.setTextSize(textSize);
   tft.setTextWrap(true);
@@ -436,7 +438,7 @@ void printText2(char *text, uint16_t color, int x, int y,int textSize)
 {
   tft.setCursor(x, y);
   tft.setFont (&digital_77pt7b);
-  
+ 
   tft.setTextColor(0xDB9A);
   tft.setTextSize(textSize);
   tft.setTextWrap(true);
@@ -582,7 +584,6 @@ void jpegInfo() {
   Serial.print(F(  "MCU height :")); Serial.println(JpegDec.MCUHeight);
   Serial.println(F("==============="));
 }
-
 //====================================================================================
 //   Open a Jpeg file and dump it to the Serial port as a C array
 //====================================================================================
@@ -590,7 +591,7 @@ void createArray(const char *filename) {
 
   fs::File jpgFile;  // File handle reference for SPIFFS
   //  File jpgFile;  // File handle reference For SD library
-  
+ 
   if ( !( jpgFile = SPIFFS.open( filename, "r"))) {
     Serial.println(F("JPEG file not found"));
     return;
@@ -601,7 +602,7 @@ void createArray(const char *filename) {
   Serial.println("// Generated by a JPEGDecoder library example sketch:");
   Serial.println("// https://github.com/Bodmer/JPEGDecoder");
   Serial.println("");
-  Serial.println("#if defined(_AVR_)");
+  Serial.println("#if defined(AVR)");
   Serial.println("  #include <avr/pgmspace.h>");
   Serial.println("#endif");
   Serial.println("");

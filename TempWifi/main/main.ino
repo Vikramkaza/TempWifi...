@@ -226,7 +226,8 @@ void Systemtemp(){
     Serial.println(mii);
     Serial.println(maa);
     if(x > maa || x < mii || humidity > humaxx || humidity < huminn  ){
-     
+     str2 = String(x);
+    humid = String(humidity); 
     Serial.println(" temperature not in limits");
      
     tft.fillRect(10,137,220,180,ILI9341_BLACK);
@@ -259,8 +260,32 @@ void Systemtemp(){
  
      printText2(humidChar, ILI9341_GREEN,90,300,2);
      printText4("%", ILI9341_WHITE,155,300,1);
+     String d = EEPROM.readString(400);
+    String mi = EEPROM.readString(500);
+    String ma = EEPROM.readString(600);
+    String humin= EEPROM.readString(700);
+    String humax= EEPROM.readString(800);
+   String str1= "http://128.199.77.195:8080/MonitorPlus/auth/sensor/";
+      String str3 = str1 + d + "/" ;
+      String str4=  str3 + "A" + "/";
+      String str5 = str4 + mi + "/";
+      String str6 = str5 + ma + "/";
+      String str7 = str6 + humin + "/";
+      String str8 = str7 + humax + "/";
+      String str9 = str8 + str2 + "/";
+      String str10 = str9 + humid ;
 
-
+       HTTPClient http;
+      
+      // RequestOptions options;
+      //options.method = "GET";
+      const char * str11 = str10.c_str();
+       http.begin(str11);
+        int httpResponseCode = http.GET();
+        Serial.println(httpResponseCode);
+      Serial.println(str10);
+       http.end();
+       //Response response = fetch(str11, options);
       }
     else{
        
@@ -311,8 +336,12 @@ void Systemtemp(){
     printText4("%", ILI9341_WHITE,205,290,1);
    
       //HTTPClient http;
-      String d = EEPROM.readString(400);
-      String str1= "https://script.google.com/macros/s/AKfycbyiLZjvqk7S3EhYKEyMDsbFItAYRmKbfQqUYtXSYQSniNHglvhjwxTiuL5cqmtcsRJv/exec?Temperature=";
+    String d = EEPROM.readString(400);
+    String mi = EEPROM.readString(500);
+    String ma = EEPROM.readString(600);
+    String humin= EEPROM.readString(700);
+    String humax= EEPROM.readString(800);
+      /*String str1= "https://script.google.com/macros/s/AKfycbyiLZjvqk7S3EhYKEyMDsbFItAYRmKbfQqUYtXSYQSniNHglvhjwxTiuL5cqmtcsRJv/exec?Temperature=";
       String str3=str1+str2;
       String str8="&Humidity=";
       String str9=str3+str8;
@@ -328,13 +357,34 @@ void Systemtemp(){
       RequestOptions options;
       options.method = "GET";
       const char * str7 = str6.c_str();
+      http://128.199.77.195:8080/FieldPlus/generalAuth/sensor/{deviceId}/{sensetype}/{minTemp}/{maxTemp}/{minHumid}/{maxHumid}/{temperature}/{humidity}*/
+      
      
-     
-      if(i%(25) == 0){
-      Response response = fetch(str7, options);
-      Serial.println(str7);
+      String str1= "http://128.199.77.195:8080/MonitorPlus/auth/sensor/";
+      String str3 = str1 + d + "/" ;
+      String str4=  str3 + "N" + "/";
+      String str5 = str4 + mi + "/";
+      String str6 = str5 + ma + "/";
+      String str7 = str6 + humin + "/";
+      String str8 = str7 + humax + "/";
+      String str9 = str8 + str2 + "/";
+      String str10 = str9 + humid ;
+      // RequestOptions options;
+      //options.method = "GET";
+      const char * str11 = str10.c_str();
+      Serial.println(str10);
+      
+      
+      
+      if(i%(36) == 0){
+      //Response response = fetch(str11, options);
+     // Serial.println(str7);
+       HTTPClient http;
+     http.begin(str11);
+     int httpResponseCode = http.GET();
       i=1;
-      Serial.println(response);}
+       http.end();
+Serial.println(httpResponseCode);}
       else{
      
      
@@ -342,7 +392,7 @@ void Systemtemp(){
      
    
       Serial.println(i);
-    delay(30000);
+    delay(20000);
      }
    
 

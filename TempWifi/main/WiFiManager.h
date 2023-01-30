@@ -119,7 +119,7 @@ bool loadWIFICredsForm(){
   String humin = EEPROM.readString(700);
   String humax = EEPROM.readString(800);
   
-  const char* ssid     = "WIFI-MANAGER-BM";
+  const char* ssid     = "WIFI-MANAGER-BM-AC";
   const char* password = "solamaten";
 
   Serial.println("Setting Access Point...");
